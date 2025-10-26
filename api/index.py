@@ -3,10 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import sys
 import os
 
-# Add the current directory to Python path to import services
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Add the server directory to Python path to import services
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'server'))
 
-from services.getExplanation import get_explanation_math, get_explanation_graph, is_math_problem, parse_placeholder_response
+from services.getExplanation import get_explanation_math, get_explanation_graph, is_math_problem
+from api.services.getExplanation import parse_placeholder_response
 
 app = FastAPI()
 

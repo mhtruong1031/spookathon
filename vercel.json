@@ -7,14 +7,27 @@
       "config": {
         "distDir": "dist"
       }
+    },
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    },
     {
       "src": "/(.*)",
       "dest": "/app/$1"
     }
   ],
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.9"
+    }
+  },
   "env": {
     "GOOGLE_API_KEY": "@google_api_key"
   }

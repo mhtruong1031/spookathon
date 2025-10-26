@@ -5,14 +5,17 @@ import base64
 from typing import Optional, Tuple, List
 import logging
 
-from google import genai
+import google.generativeai as genai
 from google.genai import types
 from pydantic import BaseModel
 
 from matplotlib import pyplot as plt
 import numpy as np
 
-from config import GOOGLE_API_KEY
+import dotenv
+dotenv.load_dotenv()
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

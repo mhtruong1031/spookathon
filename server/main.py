@@ -2,7 +2,7 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from services.getExplanation import get_explanation_math, get_explanation_graph, is_math_problem
+from services.getExplanation import get_explanation_math, get_explanation_graph, is_math_problem, parse_placeholder_response
 import cv2
 import numpy as np
 import os
@@ -26,7 +26,16 @@ async def explain_math(file: UploadFile = File(...)):
     image = await file.read()
     if not is_math_problem(image):
         return "This is not a math problem"
-    return get_explanation_math(image)
+    
+    print("DEBUG Server: Calling get_explanation_math...")
+    raw_result = get_explanation_math(image)
+    print(f"DEBUG Server: Raw result: {raw_result[:200]}...")
+    
+    print("DEBUG Server: Calling parse_placeholder_response...")
+    processed_result = parse_placeholder_response(raw_result)
+    print(f"DEBUG Server: Processed result: {processed_result[:200]}...")
+    
+    return processed_result
 
 
 @app.post("/graph/explain")
@@ -34,7 +43,16 @@ async def explain_graph(file: UploadFile = File(...)):
     image = await file.read()
     if is_math_problem(image):
         return "This is a math problem"
-    return get_explanation_graph(image)
+    
+    print("DEBUG Server: Calling get_explanation_graph...")
+    raw_result = get_explanation_graph(image)
+    print(f"DEBUG Server: Raw result: {raw_result[:200]}...")
+    
+    print("DEBUG Server: Calling parse_placeholder_response...")
+    processed_result = parse_placeholder_response(raw_result)
+    print(f"DEBUG Server: Processed result: {processed_result[:200]}...")
+    
+    return processed_result
 
 
 @app.post("/graph/generate")

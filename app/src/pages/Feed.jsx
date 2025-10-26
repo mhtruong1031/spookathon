@@ -5,15 +5,188 @@ import backIcon from '../assets/back_button.png';
 import { Link } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import Skeleton from '@mui/material/Skeleton';
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
 import './Feed.css';
 
 function Feed() {
     const videoRef = useRef(null);
+    const textOutputRef = useRef(null);
     const [shouldFlicker, setShouldFlicker] = useState(false);
     const [showButtons, setShowButtons] = useState(false);
     const [showFlash, setShowFlash] = useState(false);
     const [showLoading, setShowLoading] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const [textOutput, setTextOutput] = useState('');
+
+    // Function to parse text and render LaTeX expressions and markdown
+    const parseTextWithLatex = (text) => {
+        if (!text) return null;
+
+        // Clean up literal \n characters and normalize whitespace
+        text = text.replace(/\\n/g, ' ');
+        
+        // Clean up excessive line breaks and normalize spacing
+        text = text.replace(/\n\s*\n\s*\n+/g, ' '); // Replace multiple line breaks with space
+        text = text.replace(/\n\s+/g, ' '); // Replace line breaks followed by spaces with single space
+        text = text.replace(/\s+\n/g, ' '); // Replace spaces followed by line breaks with single space
+        text = text.replace(/\n/g, ' '); // Replace all remaining line breaks with spaces
+        text = text.replace(/\s+/g, ' '); // Replace multiple spaces with single space
+        
+        // Match LaTeX expressions and common mathematical patterns
+        const latexRegex = /\$\$([^$]+?)\$\$|\$([^$]+?)\$|\\[a-zA-Z]+\{[^}]*\}|\\[a-zA-Z]+|∫|∑|∏|√|∞|α|β|γ|δ|ε|θ|λ|μ|π|σ|τ|φ|ψ|ω/g;
+        const parts = [];
+        let lastIndex = 0;
+        let match;
+
+        while ((match = latexRegex.exec(text)) !== null) {
+            // Add text before the LaTeX expression
+            if (match.index > lastIndex) {
+                const textBefore = text.slice(lastIndex, match.index);
+                if (textBefore.trim()) {
+                    parts.push({
+                        type: 'text',
+                        content: textBefore
+                    });
+                }
+            }
+
+            // Determine the type of mathematical expression
+            let latexContent, isBlock;
+            if (match[1]) {
+                // $$...$$ block
+                latexContent = match[1].trim();
+                isBlock = true;
+            } else if (match[2]) {
+                // $...$ inline
+                latexContent = match[2].trim();
+                isBlock = false;
+            } else {
+                // LaTeX command or symbol - wrap in $ for LaTeX rendering
+                latexContent = match[0];
+                isBlock = false;
+            }
+            
+            parts.push({
+                type: 'latex',
+                content: latexContent,
+                isBlock: isBlock
+            });
+
+            lastIndex = match.index + match[0].length;
+        }
+
+        // Add remaining text after the last LaTeX expression
+        if (lastIndex < text.length) {
+            const remainingText = text.slice(lastIndex);
+            if (remainingText.trim()) {
+                parts.push({
+                    type: 'text',
+                    content: remainingText
+                });
+            }
+        }
+
+        return parts;
+    };
+
+    // Function to parse markdown formatting in text
+    const parseMarkdown = (text) => {
+        if (!text) return text;
+
+        // Handle bold text **text**
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Handle italic text *text* (but not if it's part of **text**)
+        text = text.replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>');
+        
+        // Handle headers #### text
+        text = text.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+        text = text.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+        text = text.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+        text = text.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+        
+        // Handle bullet points - simplified
+        text = text.replace(/^\* (.*$)/gm, '<li>$1</li>');
+        text = text.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+        
+        // Wrap in paragraph tags
+        if (!text.startsWith('<')) {
+            text = '<p>' + text + '</p>';
+        }
+
+        return text;
+    };
+
+    // Function to render parsed text parts
+    const renderParsedText = (parts) => {
+        if (!parts || parts.length === 0) return null;
+
+        // Group consecutive text parts to minimize fragmentation
+        const groupedParts = [];
+        let currentText = '';
+        let currentIndex = 0;
+
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i];
+            
+            if (part.type === 'text') {
+                currentText += part.content;
+            } else {
+                // If we have accumulated text, add it as a group
+                if (currentText.trim()) {
+                    groupedParts.push({
+                        type: 'text',
+                        content: currentText,
+                        index: currentIndex++
+                    });
+                    currentText = '';
+                }
+                
+                // Add the LaTeX part
+                groupedParts.push({
+                    ...part,
+                    index: currentIndex++
+                });
+            }
+        }
+
+        // Add any remaining text
+        if (currentText.trim()) {
+            groupedParts.push({
+                type: 'text',
+                content: currentText,
+                index: currentIndex++
+            });
+        }
+
+        return groupedParts.map((part) => {
+            if (part.type === 'text') {
+                // Parse markdown in text parts
+                const markdownContent = parseMarkdown(part.content);
+                return (
+                    <span 
+                        key={part.index} 
+                        dangerouslySetInnerHTML={{ __html: markdownContent }}
+                    />
+                );
+            } else if (part.type === 'latex') {
+                try {
+                    if (part.isBlock) {
+                        return <BlockMath key={part.index} math={part.content} />;
+                    } else {
+                        return <InlineMath key={part.index} math={part.content} />;
+                    }
+                } catch (error) {
+                    console.error('LaTeX rendering error:', error);
+                    return <span key={part.index} style={{ color: 'red' }}>${part.content}$</span>;
+                }
+            }
+            return null;
+        });
+    };
+
     useEffect(() => {
         const initializeCamera = async () => {
             try {
@@ -52,6 +225,17 @@ function Feed() {
 
 
     }, []);
+
+    // Ensure text output stays visible
+    useEffect(() => {
+        if (textOutputRef.current && textOutput) {
+            textOutputRef.current.style.opacity = '1';
+            textOutputRef.current.style.animation = 'none';
+            // Force reflow
+            textOutputRef.current.offsetHeight;
+            textOutputRef.current.style.animation = 'textSlideIn 0.4s ease-out';
+        }
+    }, [textOutput]);
 
     const takePhoto = async () => {
         if (!videoRef.current) return;
@@ -95,14 +279,17 @@ function Feed() {
                     console.log('Analysis result:', result);
                     if (result === "This is not a math problem") {
                         setShowAlert("This is not a math problem");
+                        setTextOutput('');
                     } else {
-                        setShowAlert(result);
+                        setTextOutput(result);
+                        setShowAlert(false);
                     }
                     // Hide loading overlay
                     setShowLoading(false);
                 } catch (error) {
                     console.error('Error analyzing image:', error);
                     setShowLoading(false);
+                    setTextOutput('');
                 }
             }, 'image/png');
         }, 120);
@@ -111,6 +298,19 @@ function Feed() {
     return (
         <div className="feed-wrapper">
             {showAlert ? <Alert severity="error" className="alert-overlay" onClose={() => setShowAlert(false)}>{showAlert}</Alert> : <></>}
+            {!showLoading && !showAlert && textOutput && (
+                <div 
+                    ref={textOutputRef}
+                    className="text-output-overlay" 
+                    onAnimationEnd={() => console.log('Text output animation ended')}
+                    style={{ opacity: 1 }}
+                >
+                    <button className="close-text-output" onClick={() => setTextOutput('')}>×</button>
+                    <div className="text-content">
+                        {renderParsedText(parseTextWithLatex(textOutput))}
+                    </div>
+                </div>
+            )}
             <Link to="/"><img src={backIcon} alt="Back" id="back-icon" className={showButtons ? 'fade-in' : ''}/></Link>
             <div id="camera-feed-container">
                 <video 

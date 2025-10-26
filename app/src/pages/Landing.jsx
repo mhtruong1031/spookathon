@@ -1,7 +1,7 @@
 import {Link} from 'react-router-dom';
 import styles from './styles/Landing.module.css';
-import shadow from '../components/shadow.png';
-import noShadow from '../components/no shadow.png';
+import shadow from './components/shadow.png';
+import noShadow from './components/no_shadow.png';
 
 function Landing() {
     return(

@@ -1,8 +1,14 @@
 # main.py
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from services.getExplanation import get_explanation_math, get_explanation_graph, is_math_problem
+import cv2
+import numpy as np
+import os
+import tempfile
 
+from Visualizer import Visualizer
 
 app = FastAPI()
 
@@ -29,3 +35,51 @@ async def explain_graph(file: UploadFile = File(...)):
     if is_math_problem(image):
         return "This is a math problem"
     return get_explanation_graph(image)
+
+
+@app.post("/graph/generate")
+async def generate_graph(file: UploadFile = File(...)):
+    """
+    Generate a graph visualization from an uploaded image using Visualizer.py
+    """
+    try:
+        # Read the uploaded image
+        image_bytes = await file.read()
+        
+        # Convert bytes to numpy array for OpenCV
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if image is None:
+            raise HTTPException(status_code=400, detail="Invalid image format")
+        
+        # Initialize Visualizer
+        visualizer = Visualizer()
+        
+        # Analyze the image to get equation and parameters
+        analysis = visualizer.get_relevant_equation_from_image(image)
+        
+        if analysis is None:
+            raise HTTPException(status_code=400, detail="Could not analyze the image to extract mathematical content")
+        
+        # Generate the plot using the extracted equation
+        try:
+            visualizer.plot_function(analysis.code, analysis.x1, analysis.x2)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error executing plot code: {str(e)}")
+        
+        # Check if the plot was generated successfully
+        if not os.path.exists("current_plot.png"):
+            raise HTTPException(status_code=500, detail="Failed to generate plot - no output file created")
+        
+        # Return the generated plot as a file response
+        return FileResponse(
+            path="current_plot.png",
+            media_type="image/png",
+            filename="generated_graph.png"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating graph: {str(e)}")

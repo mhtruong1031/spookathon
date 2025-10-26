@@ -270,7 +270,7 @@ function Feed() {
                     const formData = new FormData();
                     formData.append('file', blob, 'photo.png');
                     
-                    const response = await fetch('http://localhost:8000/math/explain', {
+                    const response = await fetch('/api/math/explain', {
                         method: 'POST',
                         body: formData
                     });

@@ -6,7 +6,7 @@ import os
 # Add the current directory to Python path to import services
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.getExplanation import get_explanation_math, get_explanation_graph, is_math_problem
+from services.getExplanation import get_explanation_graph, is_math_problem
 
 app = FastAPI()
 
@@ -19,20 +19,9 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-@app.post("/math/explain")
-async def explain_math(file: UploadFile = File(...)):
-    image = await file.read()
-    if not is_math_problem(image):
-        return "This is not a math problem"
-    return get_explanation_math(image)
-
-@app.post("/graph/explain")
+@app.post("/")
 async def explain_graph(file: UploadFile = File(...)):
     image = await file.read()
     if is_math_problem(image):
         return "This is a math problem"
     return get_explanation_graph(image)
-
-# Vercel handler
-def handler(request):
-    return app(request.scope, request.receive, request.send)

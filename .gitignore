@@ -290,3 +290,6 @@ test_imgs/
 *.bmp
 *.tiff
 *.webp
+
+# ngrok
+ngrok.log

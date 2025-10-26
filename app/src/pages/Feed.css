@@ -149,6 +149,52 @@
   z-index: 21;
 }
 
+/* Static image overlay */
+.static-image-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  max-width: 80%;
+  max-height: 60%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none; /* Allow clicks to pass through to camera */
+}
+
+/* Fetch image button */
+#fetch-image-btn {
+  position: absolute;
+  top: calc(85% + 70px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#fetch-image-btn.fade-in {
+  opacity: 1;
+}
+
+#fetch-image-btn:hover {
+  background-color: #0056b3;
+}
+
+#fetch-image-btn:active {
+  opacity: 0.7;
+}
+
 /* Back button */
 #back-icon {
   position: absolute;
@@ -432,5 +478,17 @@
     font-size: 16px;
     top: 6px;
     right: 6px;
+  }
+
+  .static-image-overlay {
+    max-width: 90%;
+    max-height: 50%;
+    border-radius: 6px;
+  }
+
+  #fetch-image-btn {
+    top: calc(85% + 80px);
+    padding: 8px 16px;
+    font-size: 12px;
   }
 }

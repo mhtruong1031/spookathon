@@ -19,6 +19,51 @@ function Feed() {
     const [showLoading, setShowLoading] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [textOutput, setTextOutput] = useState('');
+    const [staticImage, setStaticImage] = useState(null);
+    const [showStaticImage, setShowStaticImage] = useState(false);
+
+    // Function to fetch static image from API using current camera feed
+    const fetchStaticImage = async () => {
+        try {
+            if (!videoRef.current) {
+                console.error('No video reference available');
+                return;
+            }
+            
+            // Capture current frame from camera
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = videoRef.current.videoWidth;
+            canvas.height = videoRef.current.videoHeight;
+            
+            // Draw the current video frame onto the canvas
+            context.drawImage(videoRef.current, 0, 0);
+            
+            // Convert canvas to blob
+            canvas.toBlob(async (blob) => {
+                if (!blob) return;
+                
+                const formData = new FormData();
+                formData.append('file', blob, 'camera_frame.png');
+                
+                const response = await fetch('http://localhost:8000/graph/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const imageBlob = await response.blob();
+                const imageUrl = URL.createObjectURL(imageBlob);
+                setStaticImage(imageUrl);
+                setShowStaticImage(true);
+            }, 'image/png');
+        } catch (error) {
+            console.error('Error fetching static image:', error);
+        }
+    };
 
   // Function to parse text and render LaTeX expressions and markdown
   const parseTextWithLatex = (text) => {
@@ -247,6 +292,15 @@ function Feed() {
 
     }, []);
 
+    // Cleanup object URL when component unmounts
+    useEffect(() => {
+        return () => {
+            if (staticImage) {
+                URL.revokeObjectURL(staticImage);
+            }
+        };
+    }, [staticImage]);
+
     // Ensure text output stays visible
     useEffect(() => {
         if (textOutputRef.current && textOutput) {
@@ -342,6 +396,16 @@ function Feed() {
                 >
                     Unable to access camera
                 </video>
+                
+                {/* Static image overlay */}
+                {showStaticImage && staticImage && (
+                    <img 
+                        src={staticImage} 
+                        alt="Static overlay" 
+                        className="static-image-overlay"
+                    />
+                )}
+                
                 <img src={cameraViewIcon} alt="Camera View" id="camera-view-overlay" className={shouldFlicker ? 'flicker' : ''}/>
                 {showFlash && <div id="photo-flash"></div>}
                 {showLoading && <div id="loading-overlay"></div>}
@@ -349,6 +413,9 @@ function Feed() {
             {showLoading ? <CircularProgress id="loading-spinner" /> : <></>}
             <button onClick={takePhoto} id="take-photo-btn" className={showButtons ? 'fade-in' : ''}>
                 <img src={takePhotoIcon} alt="Take Photo" id="take-photo-btn-img"/>
+            </button>
+            <button onClick={fetchStaticImage} id="fetch-image-btn" className={showButtons ? 'fade-in' : ''}>
+                Show Image
             </button>
         </div>
     );

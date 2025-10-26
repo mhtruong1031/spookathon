@@ -32,3 +32,7 @@ async def explain_graph(file: UploadFile = File(...)):
     if is_math_problem(image):
         return "This is a math problem"
     return get_explanation_graph(image)
+
+# Vercel handler
+def handler(request):
+    return app(request.scope, request.receive, request.send)

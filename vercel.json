@@ -9,22 +9,14 @@
       }
     },
     {
-      "src": "api/math_explain.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "api/graph_explain.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/api/math/explain",
-      "dest": "/api/math_explain.py"
-    },
-    {
-      "src": "/api/graph/explain",
-      "dest": "/api/graph_explain.py"
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
     },
     {
       "src": "/(.*)",
@@ -32,10 +24,7 @@
     }
   ],
   "functions": {
-    "api/math_explain.py": {
-      "runtime": "python3.9"
-    },
-    "api/graph_explain.py": {
+    "api/index.py": {
       "runtime": "python3.9"
     }
   },

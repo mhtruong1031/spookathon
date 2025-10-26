@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Skeleton from '@mui/material/Skeleton';
+import ReactKatex from '@matejmazur/react-katex';
 import 'katex/dist/katex.min.css';
-import { InlineMath, BlockMath } from 'react-katex';
 import './Feed.css';
 
 function Feed() {
@@ -20,62 +20,74 @@ function Feed() {
     const [showAlert, setShowAlert] = useState(false);
     const [textOutput, setTextOutput] = useState('');
 
-    // Function to parse text and render LaTeX expressions and markdown
-    const parseTextWithLatex = (text) => {
-        if (!text) return null;
+  // Function to parse text and render LaTeX expressions and markdown
+  const parseTextWithLatex = (text) => {
+    if (!text) return null;
 
-        // Clean up literal \n characters and normalize whitespace
-        text = text.replace(/\\n/g, ' ');
-        
-        // Clean up excessive line breaks and normalize spacing
-        text = text.replace(/\n\s*\n\s*\n+/g, ' '); // Replace multiple line breaks with space
-        text = text.replace(/\n\s+/g, ' '); // Replace line breaks followed by spaces with single space
-        text = text.replace(/\s+\n/g, ' '); // Replace spaces followed by line breaks with single space
-        text = text.replace(/\n/g, ' '); // Replace all remaining line breaks with spaces
-        text = text.replace(/\s+/g, ' '); // Replace multiple spaces with single space
-        
-        // Match LaTeX expressions and common mathematical patterns
-        const latexRegex = /\$\$([^$]+?)\$\$|\$([^$]+?)\$|\\[a-zA-Z]+\{[^}]*\}|\\[a-zA-Z]+|∫|∑|∏|√|∞|α|β|γ|δ|ε|θ|λ|μ|π|σ|τ|φ|ψ|ω/g;
-        const parts = [];
-        let lastIndex = 0;
-        let match;
+    console.log('DEBUG Frontend: Raw text received:', text); // Debug: show raw text
 
-        while ((match = latexRegex.exec(text)) !== null) {
-            // Add text before the LaTeX expression
-            if (match.index > lastIndex) {
-                const textBefore = text.slice(lastIndex, match.index);
-                if (textBefore.trim()) {
-                    parts.push({
-                        type: 'text',
-                        content: textBefore
-                    });
-                }
-            }
+    // Clean up literal \n characters and normalize whitespace
+    text = text.replace(/\\n/g, ' ');
+    
+    // Clean up excessive line breaks and normalize spacing
+    text = text.replace(/\n\s*\n\s*\n+/g, ' '); // Replace multiple line breaks with space
+    text = text.replace(/\n\s+/g, ' '); // Replace line breaks followed by spaces with single space
+    text = text.replace(/\s+\n/g, ' '); // Replace spaces followed by line breaks with single space
+    text = text.replace(/\n/g, ' '); // Replace all remaining line breaks with spaces
+    text = text.replace(/\s+/g, ' '); // Replace multiple spaces with single space
+    
+    console.log('DEBUG Frontend: Cleaned text:', text); // Debug: show cleaned text
+    
+    // Match LaTeX expressions - be more precise
+    const latexRegex = /\$\$([^$]+?)\$\$|\$([^$]+?)\$/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
 
-            // Determine the type of mathematical expression
-            let latexContent, isBlock;
-            if (match[1]) {
-                // $$...$$ block
-                latexContent = match[1].trim();
-                isBlock = true;
-            } else if (match[2]) {
-                // $...$ inline
-                latexContent = match[2].trim();
-                isBlock = false;
-            } else {
-                // LaTeX command or symbol - wrap in $ for LaTeX rendering
-                latexContent = match[0];
-                isBlock = false;
-            }
-            
-            parts.push({
-                type: 'latex',
-                content: latexContent,
-                isBlock: isBlock
-            });
-
-            lastIndex = match.index + match[0].length;
+    while ((match = latexRegex.exec(text)) !== null) {
+      console.log('DEBUG Frontend: Found LaTeX match:', match[0]); // Debug: show LaTeX match
+      
+      // Add text before the LaTeX expression
+      if (match.index > lastIndex) {
+        const textBefore = text.slice(lastIndex, match.index);
+        if (textBefore.trim()) {
+          parts.push({
+            type: 'text',
+            content: textBefore
+          });
         }
+      }
+
+      // Determine the type of mathematical expression
+      let latexContent, isBlock;
+      if (match[1]) {
+        // $$...$$ block
+        latexContent = match[1].trim()
+          .replace(/\\\\/g, '\\') // Fix double backslashes to single
+          .replace(/\\newline/g, '') // Remove \newline in display mode
+          .replace(/\\n/g, '') // Remove literal \n
+          .replace(/\s+/g, ' '); // Normalize spaces
+        isBlock = true;
+      } else if (match[2]) {
+        // $...$ inline
+        latexContent = match[2].trim()
+          .replace(/\\\\/g, '\\') // Fix double backslashes to single
+          .replace(/\\newline/g, '') // Remove \newline in inline mode
+          .replace(/\\n/g, '') // Remove literal \n
+          .replace(/\s+/g, ' '); // Normalize spaces
+        isBlock = false;
+      }
+      
+      console.log('DEBUG Frontend: Processed LaTeX:', latexContent, 'isBlock:', isBlock); // Debug: show processed LaTeX
+      
+      parts.push({
+        type: 'latex',
+        content: latexContent,
+        isBlock: isBlock
+      });
+
+      lastIndex = match.index + match[0].length;
+    }
 
         // Add remaining text after the last LaTeX expression
         if (lastIndex < text.length) {
@@ -119,7 +131,7 @@ function Feed() {
         return text;
     };
 
-    // Function to render parsed text parts
+    // Function to render parsed text parts with MathJax
     const renderParsedText = (parts) => {
         if (!parts || parts.length === 0) return null;
 
@@ -161,30 +173,39 @@ function Feed() {
             });
         }
 
-        return groupedParts.map((part) => {
-            if (part.type === 'text') {
-                // Parse markdown in text parts
-                const markdownContent = parseMarkdown(part.content);
-                return (
-                    <span 
-                        key={part.index} 
-                        dangerouslySetInnerHTML={{ __html: markdownContent }}
-                    />
-                );
-            } else if (part.type === 'latex') {
-                try {
-                    if (part.isBlock) {
-                        return <BlockMath key={part.index} math={part.content} />;
-                    } else {
-                        return <InlineMath key={part.index} math={part.content} />;
+        return (
+            <>
+                {groupedParts.map((part) => {
+                    if (part.type === 'text') {
+                        // Parse markdown in text parts
+                        const markdownContent = parseMarkdown(part.content);
+                        return (
+                            <span 
+                                key={part.index} 
+                                dangerouslySetInnerHTML={{ __html: markdownContent }}
+                            />
+                        );
+                    } else if (part.type === 'latex') {
+                        console.log('DEBUG Frontend: Rendering LaTeX:', part.content, 'isBlock:', part.isBlock); // Debug: show what's being rendered
+                        try {
+                            if (part.isBlock) {
+                                return (
+                                    <div key={part.index} style={{ margin: '10px 0', textAlign: 'center' }}>
+                                        <ReactKatex math={part.content} block />
+                                    </div>
+                                );
+                            } else {
+                                return <ReactKatex key={part.index} math={part.content} />;
+                            }
+                        } catch (error) {
+                            console.error('LaTeX rendering error:', error, 'Content:', part.content);
+                            return <span key={part.index} style={{ color: 'red' }}>${part.content}$</span>;
+                        }
                     }
-                } catch (error) {
-                    console.error('LaTeX rendering error:', error);
-                    return <span key={part.index} style={{ color: 'red' }}>${part.content}$</span>;
-                }
-            }
-            return null;
-        });
+                    return null;
+                })}
+            </>
+        );
     };
 
     useEffect(() => {
@@ -270,7 +291,7 @@ function Feed() {
                     const formData = new FormData();
                     formData.append('file', blob, 'photo.png');
                     
-                    const response = await fetch('/api/math/explain', {
+                    const response = await fetch('http://localhost:8000/math/explain', {
                         method: 'POST',
                         body: formData
                     });

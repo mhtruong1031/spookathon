@@ -1,102 +1,14 @@
 @import "tailwindcss";
 
-@theme {
-  --color-federal-blue: #03045e;
-  --color-federal-blue-100: #010113;
-  --color-federal-blue-200: #010226;
-  --color-federal-blue-300: #020338;
-  --color-federal-blue-400: #02044b;
-  --color-federal-blue-500: #03045e;
-  --color-federal-blue-600: #0508ae;
-  --color-federal-blue-700: #0f12f8;
-  --color-federal-blue-800: #5f61fa;
-  --color-federal-blue-900: #afb0fd;
-
-  --color-honolulu-blue: #0077b6;
-  --color-honolulu-blue-100: #001825;
-  --color-honolulu-blue-200: #003049;
-  --color-honolulu-blue-300: #00486e;
-  --color-honolulu-blue-400: #005f93;
-  --color-honolulu-blue-500: #0077b6;
-  --color-honolulu-blue-600: #00a2f9;
-  --color-honolulu-blue-700: #3bbaff;
-  --color-honolulu-blue-800: #7cd1ff;
-  --color-honolulu-blue-900: #bee8ff;
-
-  --color-pacific-cyan: #00b4d8;
-  --color-pacific-cyan-100: #00242b;
-  --color-pacific-cyan-200: #004756;
-  --color-pacific-cyan-300: #006b81;
-  --color-pacific-cyan-400: #008fab;
-  --color-pacific-cyan-500: #00b4d8;
-  --color-pacific-cyan-600: #12d8ff;
-  --color-pacific-cyan-700: #4ee1ff;
-  --color-pacific-cyan-800: #89ebff;
-  --color-pacific-cyan-900: #c4f5ff;
-
-  --color-non-photo-blue: #90e0ef;
-  --color-non-photo-blue-100: #0a3a43;
-  --color-non-photo-blue-200: #137586;
-  --color-non-photo-blue-300: #1dafc9;
-  --color-non-photo-blue-400: #4ccfe6;
-  --color-non-photo-blue-500: #90e0ef;
-  --color-non-photo-blue-600: #a6e7f2;
-  --color-non-photo-blue-700: #bcedf5;
-  --color-non-photo-blue-800: #d2f3f9;
-  --color-non-photo-blue-900: #e9f9fc;
-
-  --color-light-cyan: #caf0f8;
-  --color-light-cyan-100: #0a444f;
-  --color-light-cyan-200: #15889f;
-  --color-light-cyan-300: #2ac4e3;
-  --color-light-cyan-400: #79daee;
-  --color-light-cyan-500: #caf0f8;
-  --color-light-cyan-600: #d4f3f9;
-  --color-light-cyan-700: #dff6fb;
-  --color-light-cyan-800: #e9f9fc;
-  --color-light-cyan-900: #f4fcfe;
-}
-
-
-#root {
-  max-width: 1280px;
-  margin: 2;
+#root{
   padding: 2rem;
-  text-align: left;
+  color: #f2e9e4;
+  font-family:'Trebuchet MS';
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+h1{
+  font-family: 'Times New Roman', Times, serif;
+  color: #f2e9e4;
+  font-size: 40;
+  text-align: center;
 }

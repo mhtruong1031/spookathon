@@ -25,27 +25,14 @@ class Analysis(BaseModel):
 
 
 class Visualizer:
-    def __init__(self, camera_id: int = 2, api_key: str = GOOGLE_API_KEY):
-        """
-        Initialize the Visualizer.
-        
-        Args:
-            camera_id: Camera device ID
-            api_key: Google API key for Gemini
-        """
-        self.cap = cv2.VideoCapture(camera_id)
-        if not self.cap.isOpened():
-            logger.error(f"Could not open camera {camera_id}")
-            raise IOError(f"Could not open camera {camera_id}")
-        
+    def __init__(self, api_key: str = GOOGLE_API_KEY):
         self.client = genai.Client(api_key=api_key)
         self.plot_output_path = "current_plot.png"
     
     def cleanup(self) -> None:
-        if self.cap is not None:
-            self.cap.release()
+        """Clean up resources"""
         cv2.destroyAllWindows()
-
+ 
     def get_relevant_equation_from_image(self, image: np.ndarray) -> Optional[Analysis]:
         try:
             original_height, original_width = image.shape[:2]
@@ -154,7 +141,7 @@ plt.savefig("current_plot.png", transparent=True, bbox_inches='tight', pad_inche
             }
             
             exec(equation, safe_globals)
-            plt.savefig("current_plot.png")
+            plt.savefig("current_plot.png", transparent=True, bbox_inches='tight', pad_inches=0)
             
             logger.debug(f"Successfully plotted function over range [{x1}, {x2}]")
             

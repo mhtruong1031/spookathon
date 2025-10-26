@@ -4,4 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    allowedHosts: ['sounds-composite-prints-phoenix.trycloudflare.com', 'beatles-ccd-cfr-tract.trycloudflare.com']
+  }
 })

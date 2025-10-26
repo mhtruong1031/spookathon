@@ -1,0 +1,244 @@
+/* Feed Component Styles */
+.feed-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+#camera-feed-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+#camera-feed-container video {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+#camera-view-overlay {
+  position: absolute;
+  top: calc(52% + 40px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  width: 95%;
+  max-width: 1200px;
+  height: auto;
+  pointer-events: none;
+}
+
+#camera-view-overlay.flicker {
+  animation: flicker 3s ease-in-out;
+}
+
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  20%, 60% {
+    opacity: 0;
+  }
+  40%, 80% {
+    opacity: 1;
+  }
+}
+
+/* Take photo button */
+#take-photo-btn {
+  position: absolute;
+  top: calc(85% + 15px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+#take-photo-btn.fade-in {
+  opacity: 1;
+}
+
+#take-photo-btn:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+#take-photo-btn:active {
+  opacity: 0.3;
+}
+
+#take-photo-btn img {
+  width: 50px !important;
+  height: 50px !important;
+  display: block;
+}
+
+#take-photo-btn-img {
+  width: 50px !important;
+  height: 50px !important;
+  display: block;
+}
+
+/* Photo flash overlay */
+#photo-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  z-index: 20;
+  opacity: 0;
+  animation: flashFade 0.24s ease-out;
+}
+
+@keyframes flashFade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Loading overlay */
+#loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(64, 64, 64, 0.8);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#loading-spinner {
+  position: absolute;
+  top: calc(50% - 60px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 21;
+}
+
+/* Back button */
+#back-icon {
+  position: absolute;
+  top: 15px;
+  left: 0px;
+  z-index: 15;
+  width: 150px;
+  height: 30px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+#back-icon.fade-in {
+  opacity: 1;
+}
+
+/* Alert overlay */
+.alert-overlay {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  max-width: 90%;
+  animation: slideDownFadeIn 0.3s ease-out 0s forwards, fadeOut 0.3s ease-in 1.5s forwards;
+  opacity: 0;
+}
+
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+@media only screen and (max-width: 450px) {
+  .feed-wrapper {
+    width: 100vw;
+    height: 100%;
+    gap: 0;
+    padding: 0;
+    box-sizing: border-box;
+    justify-content: flex-start;
+  }
+  
+  #camera-feed-container {
+    width: 100%;
+    height: 100vh;
+    flex: 0 0 auto;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    margin: 0;
+  }
+  
+  #camera-feed-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+  }
+  
+  #take-photo-btn {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    padding: 0 !important;
+    margin: 0 auto;
+    position: absolute;
+    bottom: calc(20% - 25px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

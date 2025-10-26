@@ -1,0 +1,53 @@
+
+.textWhite {
+    color: white;
+}
+
+.bigFont {
+    font-size: 112px;
+}
+
+.title {
+    font-family: 'Times New Roman';
+    text-align: center;
+    color: #f4f1de;
+    line-height: 0%;
+}
+
+img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.imageHover {
+  position: relative;    /* container for absolute positioning */
+  display: inline-block;
+}
+
+.imageHover img {
+  display: block;
+  width: 150px;          /* match both images */
+  height: auto;
+  transition: opacity 0.3s ease;
+}
+
+.normal {
+  display: block;        /* visible by default */
+}
+
+.hover {
+  position: absolute;    /* sits on top of normal */
+  top: 0;
+  left: 0;
+  opacity: 0;            /* hidden initially */
+  pointer-events: none;  /* clicks pass through to <a> */
+}
+
+.imageHover:hover .hover {
+  opacity: 1;            /* fade in on hover */
+}
+
+.imageHover:hover .normal {
+  opacity: 0;            /* fade out on hover */
+}

@@ -1,6 +1,6 @@
 import PIL.Image as Image
 import io
-from google import genai
+import google.generativeai as genai
 import dotenv
 import os
 dotenv.load_dotenv()

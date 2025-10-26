@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "api/math_explain.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/graph_explain.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/math/explain",
+      "dest": "/api/math_explain.py"
+    },
+    {
+      "src": "/api/graph/explain",
+      "dest": "/api/graph_explain.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/app/$1"
+    }
+  ],
+  "functions": {
+    "api/math_explain.py": {
+      "runtime": "python3.9"
+    },
+    "api/graph_explain.py": {
+      "runtime": "python3.9"
+    }
+  },
+  "env": {
+    "GOOGLE_API_KEY": "@google_api_key"
+  }
+}

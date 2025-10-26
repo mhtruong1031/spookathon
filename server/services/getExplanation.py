@@ -5,9 +5,11 @@ import dotenv
 import os
 import json
 import re
-dotenv.load_dotenv()
+import sys
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+# Add the parent directory to the path to import config
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import GOOGLE_API_KEY
 
 def parse_placeholder_response(text):
     """Parse AI response with placeholders and JSON LaTeX array"""

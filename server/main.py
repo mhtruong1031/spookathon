@@ -7,8 +7,13 @@ import cv2
 import numpy as np
 import os
 import tempfile
+import google.generativeai as genai
 
 from Visualizer import Visualizer
+from config import GOOGLE_API_KEY
+
+# Configure the API key
+genai.configure(api_key=GOOGLE_API_KEY)
 
 app = FastAPI()
 
@@ -73,6 +78,7 @@ async def generate_graph(file: UploadFile = File(...)):
             raise HTTPException(status_code=500, detail="Failed to generate plot - no output file created")
         
         # Return the generated plot as a file response
+        print("we fucking ball bro")
         return FileResponse(
             path="current_plot.png",
             media_type="image/png",

@@ -26,7 +26,7 @@ class Analysis(BaseModel):
 
 class Visualizer:
     def __init__(self, api_key: str = GOOGLE_API_KEY):
-        self.client = genai.Client(api_key=api_key)
+        self.client = genai.Client(api_key=GOOGLE_API_KEY)
         self.plot_output_path = "current_plot.png"
     
     def cleanup(self) -> None:
@@ -48,7 +48,7 @@ class Visualizer:
             response = self.client.models.generate_content(
                 model="gemini-2.5-flash",
                 contents=[
-                    "Analyze the image for a certain math concept and return the relevant python code to plot an example equation in matplotlib, where plt is already imported, and the range of x values is the domain where relevant part of the function is visible. Make sure to save as specified",
+                    "Analyze the image for a certain math concept and return the relevant python code to plot an example equation in matplotlib, preferably 3D, where plt is already imported, and the range of x values is the domain where relevant part of the function is visible. Make sure to save as specified",
                     "Examples of valid equation code:",
                     """import numpy as np
 import matplotlib.pyplot as plt
